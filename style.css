@@ -248,6 +248,38 @@ body {
 .form__input::placeholder, .form__textarea::placeholder { color: var(--muted); }
 .form__actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
+/* Cursor-driven wave effect across all sections */
+section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--wave-opacity, 0);
+  transition: opacity 150ms ease;
+  background:
+    radial-gradient(40rem 40rem at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      color-mix(in oklab, var(--primary) 18%, transparent) 0%,
+      transparent 60%),
+    radial-gradient(24rem 24rem at calc(var(--mouse-x, 50%) + 60px) calc(var(--mouse-y, 50%) + 60px),
+      color-mix(in oklab, var(--primary-2) 16%, transparent) 0%,
+      transparent 70%);
+  mix-blend-mode: soft-light;
+}
+
+section[data-hovered="true"]::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  section::before { display: none; }
+}
+
 /* Tools */
 .tools__grid { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
 .tool { transition: transform 150ms ease; }

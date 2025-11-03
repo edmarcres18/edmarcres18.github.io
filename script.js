@@ -69,6 +69,56 @@
     });
   }
 
+  // Cursor-driven wave overlay for all sections
+  function initCursorWave() {
+    if (reduceMotion) return;
+    const sections = Array.from(document.querySelectorAll('section'));
+    if (!sections.length) return;
+
+    let rafId = null;
+    const setPos = (section, x, y) => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        section.style.setProperty('--mouse-x', `${x}px`);
+        section.style.setProperty('--mouse-y', `${y}px`);
+      });
+    };
+
+    sections.forEach(section => {
+      const move = (clientX, clientY) => {
+        const rect = section.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        setPos(section, x, y);
+      };
+
+      section.addEventListener('mouseenter', (e) => {
+        section.setAttribute('data-hovered', 'true');
+        move(e.clientX, e.clientY);
+      });
+
+      section.addEventListener('mousemove', (e) => {
+        move(e.clientX, e.clientY);
+      });
+
+      section.addEventListener('mouseleave', () => {
+        section.removeAttribute('data-hovered');
+      });
+
+      // Touch support
+      section.addEventListener('touchmove', (e) => {
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        move(t.clientX, t.clientY);
+        section.setAttribute('data-hovered', 'true');
+      }, { passive: true });
+
+      section.addEventListener('touchend', () => {
+        section.removeAttribute('data-hovered');
+      });
+    });
+  }
+
   // Theme toggle (light/dark)
   function initThemeToggle() {
     const btn = document.querySelector('.theme-toggle');
@@ -243,6 +293,7 @@
       setYear();
       initNavToggle();
       initSmoothScroll();
+      initCursorWave();
       initThemeToggle();
       initProjectAutoCategorize();
       initProjectFilters();
@@ -255,6 +306,7 @@
     setYear();
     initNavToggle();
     initSmoothScroll();
+    initCursorWave();
     initThemeToggle();
     initProjectAutoCategorize();
     initProjectFilters();
